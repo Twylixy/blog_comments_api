@@ -1,0 +1,57 @@
+# BUILDER 
+FROM python:3.9.8-alpine as builder
+
+# Set workdir
+WORKDIR /usr/src/app
+
+# Set ENV vars
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Dependencies for psycopg2
+RUN apk update
+RUN apk add postgresql-dev gcc python3-dev musl-dev
+
+# Project dependencies
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+
+# IMAGE
+FROM python:3.9.8-alpine
+
+# Create app directory
+RUN mkdir -p /home/app
+
+# Create app user
+RUN addgroup -S app && adduser -S app -G app
+
+# Create dirs for project
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/app
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/static
+WORKDIR $HOME
+
+# Install project dependencies
+RUN apk update && apk add libpq
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+# Copy entrypoint.prod.sh
+COPY ./docker/web/entrypoint.prod.sh .
+RUN sed -i 's/\r$//g'  $HOME/entrypoint.prod.sh
+RUN chmod +x  $HOME/entrypoint.prod.sh
+
+# Copy project
+COPY . $HOME
+
+# Chown for all files to the app user
+RUN chown -R app:app $HOME
+
+# Change user to app user
+USER app
+
+# Entrypoint
+ENTRYPOINT ["/bin/sh", "/home/app/entrypoint.prod.sh"]
