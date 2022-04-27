@@ -45,3 +45,6 @@ Needed for update requirements.txt for docker container installation
 cd /path/to/project/root/
 $ poetry export -f requirements.txt -o requirements.txt
 ```
+
+## Project's API
+You can see API structure here [here](https://github.com/Twylixy/blog_comments_api/blob/master/API.md).
