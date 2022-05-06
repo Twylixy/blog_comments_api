@@ -62,7 +62,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = "__all__"
+        fields = ("author_id", "author", "content")
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
@@ -88,7 +88,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = "__all__"
+        fields = ("author_id", "author", "text", "reply_to", "post")
 
 
 class CommentDetailSerializer(serializers.ModelSerializer):

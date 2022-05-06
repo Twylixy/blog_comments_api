@@ -1,4 +1,5 @@
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework import permissions
 from rest_framework.response import Response
 from .models import Post, Comment
@@ -13,8 +14,7 @@ from .serializers import (
 )
 
 
-
-class PostListView(APIView):
+class PostListView(GenericAPIView):
     """Get list of posts"""
 
     def get(self, request):
@@ -23,8 +23,12 @@ class PostListView(APIView):
         return Response(serializer.data, status=200)
 
 
-class PostCreateView(APIView):
+class PostCreateView(GenericAPIView):
     """Create a post"""
+
+    serializer_class = PostCreateSerializer
+    permission_classes = (permissions.AllowAny,)
+    allowed_methods = ("POST",)
 
     def post(self, request):
         post_ = PostCreateSerializer(data=request.data)
@@ -36,7 +40,7 @@ class PostCreateView(APIView):
         return Response(status=201)
 
 
-class PostDetailView(APIView):
+class PostDetailView(GenericAPIView):
     """Get post details"""
 
     def get(self, request, post_id):
@@ -45,7 +49,7 @@ class PostDetailView(APIView):
         return Response(serializer.data, status=200)
 
 
-class CommentListView(APIView):
+class CommentListView(GenericAPIView):
     """Get list of comments"""
 
     def get(self, request):
@@ -54,8 +58,15 @@ class CommentListView(APIView):
         return Response(serializer.data, status=200)
 
 
-class CommentCreateView(APIView):
-    """Create a comment"""
+class CommentCreateView(GenericAPIView):
+    """
+    Create a comment
+    **reply_to** field is optional.
+    """
+
+    serializer_class = CommentCreateSerializer
+    permission_classes = (permissions.AllowAny,)
+    allowed_methods = ("POST",)
 
     def post(self, request):
         if "reply_to" in request.data:
@@ -71,7 +82,7 @@ class CommentCreateView(APIView):
         return Response(status=201)
 
 
-class CommentDetailView(APIView):
+class CommentDetailView(GenericAPIView):
     """Get comment details"""
 
     def get(self, request, comment_id):
@@ -80,13 +91,10 @@ class CommentDetailView(APIView):
         return Response(serializer.data, status=200)
 
 
-class CommentThreadView(APIView):
+class CommentThreadView(GenericAPIView):
     """Get thread from head comment"""
 
     def get(self, request, head_comment_id):
         comment = Comment.objects.get(id=head_comment_id)
         serializer = CommentThreadSerializer(comment)
         return Response(serializer.data, status=200)
-
-
-

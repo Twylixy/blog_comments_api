@@ -1,7 +1,7 @@
 .vscode
 .venv
 .pyc
-.env.dev
-.env.prod
+# .env.dev
+# .env.prod
 __pycache__
 static/

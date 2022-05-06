@@ -1,5 +1,4 @@
 # Project's API
-Note: the Swagger page was designed for api representation. Doesn't work with parameters for queries.
 
 * /api/v1
   * /docs - Swagger documentation.
